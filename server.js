@@ -7,7 +7,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// POST /send
+// POST 
 app.post("/send", async (req, res) => {
   const { name, email, message } = req.body;
 
@@ -23,9 +23,9 @@ app.post("/send", async (req, res) => {
 
     // Send mail
     await transporter.sendMail({
-      from: `"Portfolio Contact" <${process.env.EMAIL_USER}>`, // always use your Gmail here
-      replyTo: email, // so you can reply to sender
-      to: process.env.EMAIL_USER, // your inbox
+      from: `"Portfolio Contact" <${process.env.EMAIL_USER}>`, // always Gmail here
+      replyTo: email, // reply to sender
+      to: process.env.EMAIL_USER, // inbox
       subject: `New message from ${name}`,
       text: message,
       html: `
