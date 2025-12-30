@@ -8,6 +8,9 @@ package-lock.json
 # Environment
 .env
 
+# User Uploads
+uploads/
+
 # IDE/Editor
 .vscode/
 .idea/
