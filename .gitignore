@@ -28,7 +28,8 @@ Thumbs.db
 # Images (if you don't want to commit them)
 /Images/*.jpg
 /Images/*.png
-!Images/logo.jpg  # Except this specific file
+# Except this specific file
+!Images/logo.jpg
 
 # Build files
 dist/
