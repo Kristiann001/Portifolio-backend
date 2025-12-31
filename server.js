@@ -20,7 +20,10 @@ app.use(express.json());
 
 // Debug logging
 app.use((req, res, next) => {
-  console.log(`[REQUEST] ${req.method} ${req.url}`);
+  console.log(`[REQUEST] ${new Date().toISOString()} | ${req.method} ${req.url}`);
+  if (req.body && Object.keys(req.body).length > 0) {
+    console.log('Body:', JSON.stringify(req.body).substring(0, 200) + (JSON.stringify(req.body).length > 200 ? '...' : ''));
+  }
   next();
 });
 
@@ -257,8 +260,8 @@ app.post('/send', async (req, res) => {
     
     res.json({ success: true });
   } catch (error) {
-    console.log('Email error:', error);
-    res.status(500).json({ success: false, error: 'Email failed' });
+    console.error('Email error details:', error);
+    res.status(500).json({ success: false, error: 'Email failed to send. Check server logs.' });
   }
 });
 
