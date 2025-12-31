@@ -43,7 +43,8 @@ const projectSchema = new mongoose.Schema({
   title: String,
   description: String,
   image: String,
-  link: String
+  link: String,
+  loomLink: String
 }, { timestamps: true });
 
 const educationSchema = new mongoose.Schema({
@@ -180,7 +181,7 @@ app.get('/projects', async (req, res) => {
 // Add project
 app.post('/projects', upload.single('image'), async (req, res) => {
   try {
-    const { title, description, link, imageUrl } = req.body;
+    const { title, description, link, loomLink, imageUrl } = req.body;
     
     let image = '';
     if (req.file) {
@@ -193,7 +194,8 @@ app.post('/projects', upload.single('image'), async (req, res) => {
       title,
       description,
       image,
-      link: link || ''
+      link: link || '',
+      loomLink: loomLink || ''
     });
     
     await project.save();
@@ -206,8 +208,8 @@ app.post('/projects', upload.single('image'), async (req, res) => {
 // Update project
 app.put('/projects/:id', upload.single('image'), async (req, res) => {
   try {
-    const { title, description, link, imageUrl } = req.body;
-    const updateData = { title, description, link: link || '' };
+    const { title, description, link, loomLink, imageUrl } = req.body;
+    const updateData = { title, description, link: link || '', loomLink: loomLink || '' };
     
     if (req.file) {
       updateData.image = req.file.filename;
