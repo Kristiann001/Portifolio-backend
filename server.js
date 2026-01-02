@@ -36,7 +36,8 @@ mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/portfolioDB
 const achievementSchema = new mongoose.Schema({
   title: String,
   description: String,
-  image: String
+  image: String,
+  certification: String
 }, { timestamps: true });
 
 const projectSchema = new mongoose.Schema({
@@ -95,7 +96,8 @@ app.get('/achievements', async (req, res) => {
     // Transform image paths to URLs
     const achievementsWithUrls = achievements.map(ach => ({
       ...ach._doc,
-      image: ach.image.startsWith('http') ? ach.image : `${req.protocol}://${req.get('host')}/uploads/${ach.image}`
+      image: ach.image.startsWith('http') ? ach.image : `${req.protocol}://${req.get('host')}/uploads/${ach.image}`,
+      certification: ach.certification ? (ach.certification.startsWith('http') ? ach.certification : `${req.protocol}://${req.get('host')}/uploads/${ach.certification}`) : null
     }));
     res.json(achievementsWithUrls);
   } catch (error) {
@@ -104,40 +106,57 @@ app.get('/achievements', async (req, res) => {
 });
 
 // Add achievement
-app.post('/achievements', upload.single('image'), async (req, res) => {
+// Add achievement
+app.post('/achievements', upload.fields([{ name: 'image', maxCount: 1 }, { name: 'certification', maxCount: 1 }]), async (req, res) => {
   try {
-    const { title, description, imageUrl } = req.body;
+    const { title, description, imageUrl, certificationUrl } = req.body;
     
     let image = '';
-    if (req.file) {
-      image = req.file.filename;
+    if (req.files && req.files['image']) {
+      image = req.files['image'][0].filename;
     } else if (imageUrl) {
       image = imageUrl;
+    }
+
+    let certification = '';
+    if (req.files && req.files['certification']) {
+      certification = req.files['certification'][0].filename;
+    } else if (certificationUrl) {
+      certification = certificationUrl;
     }
     
     const achievement = new Achievement({
       title,
       description,
-      image
+      image,
+      certification
     });
     
     await achievement.save();
     res.json(achievement);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: 'Failed to save' });
   }
 });
 
 // Update achievement
-app.put('/achievements/:id', upload.single('image'), async (req, res) => {
+// Update achievement
+app.put('/achievements/:id', upload.fields([{ name: 'image', maxCount: 1 }, { name: 'certification', maxCount: 1 }]), async (req, res) => {
   try {
-    const { title, description, imageUrl } = req.body;
+    const { title, description, imageUrl, certificationUrl } = req.body;
     const updateData = { title, description };
     
-    if (req.file) {
-      updateData.image = req.file.filename;
+    if (req.files && req.files['image']) {
+      updateData.image = req.files['image'][0].filename;
     } else if (imageUrl) {
       updateData.image = imageUrl;
+    }
+
+    if (req.files && req.files['certification']) {
+      updateData.certification = req.files['certification'][0].filename;
+    } else if (certificationUrl) {
+      updateData.certification = certificationUrl;
     }
     
     const achievement = await Achievement.findByIdAndUpdate(
@@ -148,6 +167,7 @@ app.put('/achievements/:id', upload.single('image'), async (req, res) => {
     
     res.json(achievement);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: 'Failed to update' });
   }
 });
